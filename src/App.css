@@ -1,38 +1,36 @@
-.App {
-  text-align: center;
-}
+/* src/App.css */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Kontejner pro spinner - vycentruje ho na střed obrazovky */
+.spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 100vh; /* Přes celou výšku okna */
+  color: #1988ff;
+  font-family: sans-serif;
+  background-color: #f9fafb; /* Jemně šedé pozadí */
 }
 
-.App-link {
-  color: #61dafb;
+/* Samotné točící kolečko */
+.spinner {
+  border: 4px solid #e5e7eb; /* Světle šedý kruh */
+  border-top: 4px solid #1988ff; /* Modrá část, která se točí */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite; /* Animace točení */
+  margin-bottom: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Definice animace */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Základní styl aplikace */
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa;
 }

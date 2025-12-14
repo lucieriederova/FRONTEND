@@ -1,89 +1,113 @@
-
-import React, { useState } from "react";
+// src/App.js
+import React, { useState, useEffect } from "react";
+import "./App.css"; 
 import OverviewRoute from "./OverviewRoute";
 import DetailRoute from "./DetailRoute";
-
-const initialShoppingLists = [
-  {
-    id: "list01",
-    name: "narozeninová oslava",
-    owner: { id: "u1", name: "lucie" },
-    isArchived: false,
-    members: [
-      { id: "u2", name: "athena" },
-      { id: "u3", name: "mike" }
-    ],
-    items: [
-      { id: "item1", name: "balónky", isFinished: false },
-      { id: "item2", name: "dort", isFinished: true },
-    ] 
-  },
-  {
-    id: "list02",
-    name: "vánoce",
-    owner: { id: "u1", name: "lucie" },
-    isArchived: false,
-    members: [],
-    items: [] 
-  },
-  {
-    id: "list03",
-    name: "potraviny",
-    owner: { id: "u1", name: "lucie" },
-    isArchived: true, 
-    members: [],
-    items: [{ id: "i1", name: "mléko", isFinished: true }] 
-  },
-];
+import { fetchLists, createList, updateList, deleteList } from "./api";
 
 function App() {
-  const [shoppingLists, setShoppingLists] = useState(initialShoppingLists);
+  // --- STAVY ---
+  const [shoppingLists, setShoppingLists] = useState([]); 
   const [activeListId, setActiveListId] = useState(null);
+  
+  // Stavy načítání: "pending" | "ready" | "error"
+  const [loadState, setLoadState] = useState("pending");
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  function handleDeleteList(listId) {
-    setShoppingLists((current) => current.filter((l) => l.id !== listId));
-    if (activeListId === listId) setActiveListId(null);
+  // --- NAČTENÍ DAT ---
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoadState("pending"); 
+        const data = await fetchLists(); 
+        setShoppingLists(data);
+        setLoadState("ready");   
+      } catch (e) {
+        setErrorMessage("Chyba při komunikaci se serverem.");
+        setLoadState("error");   
+      }
+    }
+    loadData();
+  }, []);
+
+  // --- FUNKCE (HANDLERS) ---
+
+  async function handleAddList(listName) {
+    try {
+        const owner = { id: "u1", name: "Lucie" }; 
+        const newList = await createList(listName, owner);
+        setShoppingLists((prev) => [...prev, newList]);
+    } catch (e) {
+        alert("Chyba při vytváření seznamu");
+    }
   }
 
-  function handleArchiveList(listId) {
-    setShoppingLists((current) => current.map((l) => l.id === listId ? { ...l, isArchived: !l.isArchived } : l));
+  async function handleUpdateList(updatedList) {
+    try {
+      await updateList(updatedList);
+      setShoppingLists((prev) => prev.map((l) => l.id === updatedList.id ? updatedList : l));
+    } catch (e) {
+       alert("Chyba při ukládání");
+    }
   }
 
-  function handleAddList(listName) {
-    const newList = {
-      id: "list" + Math.random(),
-      name: listName,
-      owner: { id: "u1", name: "lucie" },
-      isArchived: false,
-      members: [],
-      items: []
-    };
-    setShoppingLists((current) => [...current, newList]);
+  async function handleDeleteList(listId) {
+    try {
+      await deleteList(listId);
+      setShoppingLists((prev) => prev.filter((l) => l.id !== listId));
+      if (activeListId === listId) setActiveListId(null);
+    } catch (e) {
+       alert("Chyba při mazání");
+    }
   }
 
-  function handleUpdateList(updatedList) {
-    setShoppingLists((current) => {
-      return current.map((list) => (list.id === updatedList.id ? updatedList : list));
-    });
+  async function handleArchiveList(listId) {
+    const listToArchive = shoppingLists.find(l => l.id === listId);
+    if (!listToArchive) return;
+    const updatedList = { ...listToArchive, isArchived: !listToArchive.isArchived };
+    await handleUpdateList(updatedList);
   }
 
+  // --- VYKRESLENÍ PODLE STAVU ---
+
+  if (loadState === "pending") {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p>Načítám data...</p>
+      </div>
+    );
+  }
+
+  if (loadState === "error") {
+    return (
+      <div style={{ padding: "50px", textAlign: "center", color: "red" }}>
+        <h2>Nastala chyba ⚠️</h2>
+        <p>{errorMessage}</p>
+      </div>
+    );
+  }
+
+  // Stav READY
   const activeList = shoppingLists.find((l) => l.id === activeListId);
 
   return (
     <div className="App">
       {activeList ? (
         <DetailRoute 
-           data={activeList}               
-           onUpdate={handleUpdateList}     
+           data={activeList} 
+           onUpdate={handleUpdateList} 
            onBack={() => setActiveListId(null)} 
         />
       ) : (
         <OverviewRoute 
-           shoppingLists={shoppingLists}   
+           // ZDE BYLA CHYBA - opraveno na "shoppingLists"
+           shoppingLists={shoppingLists}
+           
            onDelete={handleDeleteList}
            onArchive={handleArchiveList}
            onAdd={handleAddList}
-           onNavigate={setActiveListId} 
+           onNavigate={setActiveListId}
         />
       )}
     </div>

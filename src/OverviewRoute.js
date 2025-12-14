@@ -3,33 +3,29 @@ import React, { useState } from "react";
 import Header from "./Header";
 import ShoppingListCard from "./ShoppingListCard"; 
 import AddList from "./AddList"; 
-import Modal from "./Modal"; // <--- Importujeme Modal
+import Modal from "./Modal"; 
 
+// Přijímáme 'shoppingLists' (musí se jmenovat stejně jako v App.js)
 function OverviewRoute({ shoppingLists, onDelete, onArchive, onAdd, onNavigate }) {
   const [showArchived, setShowArchived] = useState(false);
-  
-  // Stav pro ID seznamu, který chceme smazat (pokud null, okno je zavřené)
   const [listToDelete, setListToDelete] = useState(null);
   
   const currentUser = { id: "u1", name: "Lucie" };
 
-  // --- FILTROVÁNÍ ---
-  const listsToDisplay = shoppingLists.filter((list) => {
+  // BEZPEČNOSTNÍ POJISTKA: Kdyby náhodou přišlo undefined, použijeme prázdné pole
+  const safeLists = shoppingLists || [];
+
+  // Filtrování
+  const listsToDisplay = safeLists.filter((list) => {
     return showArchived ? list.isArchived : !list.isArchived;
   });
 
-  // --- HANDLERY PRO MAZÁNÍ ---
-  
-  // 1. Uživatel klikl na křížek -> Otevřít potvrzovací okno
-  const confirmDeleteClick = (id) => {
-    setListToDelete(id); 
-  };
-
-  // 2. Uživatel v okně klikl "Smazat" -> Provést akci a zavřít okno
+  // Logika pro mazání
+  const confirmDeleteClick = (id) => setListToDelete(id); 
   const executeDelete = () => {
     if (listToDelete) {
-      onDelete(listToDelete); // Voláme funkci z App.js
-      setListToDelete(null);  // Zavřeme okno
+      onDelete(listToDelete);
+      setListToDelete(null);
     }
   };
 
@@ -41,8 +37,6 @@ function OverviewRoute({ shoppingLists, onDelete, onArchive, onAdd, onNavigate }
         
         {/* HORNÍ LIŠTA */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", height: "50px" }}>
-          
-          {/* LEVÁ STRANA: Filtr */}
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ marginRight: "10px", fontSize: "1.2em" }}>zobrazit:</span>
             <button 
@@ -51,21 +45,13 @@ function OverviewRoute({ shoppingLists, onDelete, onArchive, onAdd, onNavigate }
                 border: "none",
                 backgroundColor: showArchived ? "#fef08a" : "#dbeafe",
                 color: "#1988ff",
-                borderRadius: "20px",
-                padding: "5px 20px",
-                cursor: "pointer",
-                fontSize: "1em",
-                fontWeight: "bold",
-                transition: "all 0.2s"
+                borderRadius: "20px", padding: "5px 20px", cursor: "pointer", fontSize: "1em", fontWeight: "bold", transition: "all 0.2s"
               }}
             >
               {showArchived ? "archivované" : "aktivní"}
             </button>
           </div>
-
-          {/* PRAVÁ STRANA: Přidat seznam */}
           {!showArchived && <AddList onAdd={onAdd} />}
-          
         </div>
 
         {/* MŘÍŽKA KARET */}
@@ -84,11 +70,8 @@ function OverviewRoute({ shoppingLists, onDelete, onArchive, onAdd, onNavigate }
               owner={list.owner}
               isArchived={list.isArchived}
               items={list.items}
-              currentUser={currentUser} // <--- Posíláme info o uživateli
-              
-              // Místo přímého mazání voláme naše potvrzení
+              currentUser={currentUser}
               onDelete={confirmDeleteClick} 
-              
               onArchive={onArchive}
               onOpenDetail={onNavigate} 
             />
@@ -97,7 +80,7 @@ function OverviewRoute({ shoppingLists, onDelete, onArchive, onAdd, onNavigate }
 
         {/* MODÁLNÍ OKNO PRO POTVRZENÍ SMAZÁNÍ */}
         <Modal 
-          isOpen={!!listToDelete} // Otevřeno, pokud máme ID ke smazání
+          isOpen={!!listToDelete} 
           onClose={() => setListToDelete(null)}
           title="Smazat seznam?"
         >

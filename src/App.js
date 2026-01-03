@@ -1,20 +1,22 @@
 // src/App.js
 import React, { useState, useEffect } from "react";
 import "./App.css"; 
+import "./i18n"; // Inicializace překladů
+import { ThemeProvider } from "./ThemeContext"; // Téma
+import { useTranslation } from "react-i18next";
+
 import OverviewRoute from "./OverviewRoute";
 import DetailRoute from "./DetailRoute";
 import { fetchLists, createList, updateList, deleteList } from "./api";
 
-function App() {
-  // --- STAVY ---
+// Hlavní komponenta, která řeší logiku
+function AppContent() {
+  const { t } = useTranslation();
   const [shoppingLists, setShoppingLists] = useState([]); 
   const [activeListId, setActiveListId] = useState(null);
-  
-  // Stavy načítání: "pending" | "ready" | "error"
   const [loadState, setLoadState] = useState("pending");
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // --- NAČTENÍ DAT ---
   useEffect(() => {
     async function loadData() {
       try {
@@ -23,32 +25,27 @@ function App() {
         setShoppingLists(data);
         setLoadState("ready");   
       } catch (e) {
-        setErrorMessage("Chyba při komunikaci se serverem.");
+        setErrorMessage(t("error"));
         setLoadState("error");   
       }
     }
     loadData();
-  }, []);
+  }, [t]);
 
-  // --- FUNKCE (HANDLERS) ---
-
+  // Handlery (stejné jako minule)
   async function handleAddList(listName) {
     try {
         const owner = { id: "u1", name: "Lucie" }; 
         const newList = await createList(listName, owner);
         setShoppingLists((prev) => [...prev, newList]);
-    } catch (e) {
-        alert("Chyba při vytváření seznamu");
-    }
+    } catch (e) { alert(t("error")); }
   }
 
   async function handleUpdateList(updatedList) {
     try {
       await updateList(updatedList);
       setShoppingLists((prev) => prev.map((l) => l.id === updatedList.id ? updatedList : l));
-    } catch (e) {
-       alert("Chyba při ukládání");
-    }
+    } catch (e) { alert(t("error")); }
   }
 
   async function handleDeleteList(listId) {
@@ -56,9 +53,7 @@ function App() {
       await deleteList(listId);
       setShoppingLists((prev) => prev.filter((l) => l.id !== listId));
       if (activeListId === listId) setActiveListId(null);
-    } catch (e) {
-       alert("Chyba při mazání");
-    }
+    } catch (e) { alert(t("error")); }
   }
 
   async function handleArchiveList(listId) {
@@ -68,27 +63,14 @@ function App() {
     await handleUpdateList(updatedList);
   }
 
-  // --- VYKRESLENÍ PODLE STAVU ---
-
+  // --- RENDER ---
   if (loadState === "pending") {
-    return (
-      <div className="spinner-container">
-        <div className="spinner"></div>
-        <p>Načítám data...</p>
-      </div>
-    );
+    return <div className="spinner-container"><div className="spinner"></div><p>{t("loading")}</p></div>;
   }
-
   if (loadState === "error") {
-    return (
-      <div style={{ padding: "50px", textAlign: "center", color: "red" }}>
-        <h2>Nastala chyba ⚠️</h2>
-        <p>{errorMessage}</p>
-      </div>
-    );
+    return <div style={{ padding: "50px", textAlign: "center", color: "red" }}><h2>{errorMessage}</h2></div>;
   }
 
-  // Stav READY
   const activeList = shoppingLists.find((l) => l.id === activeListId);
 
   return (
@@ -101,9 +83,7 @@ function App() {
         />
       ) : (
         <OverviewRoute 
-           // ZDE BYLA CHYBA - opraveno na "shoppingLists"
            shoppingLists={shoppingLists}
-           
            onDelete={handleDeleteList}
            onArchive={handleArchiveList}
            onAdd={handleAddList}
@@ -114,4 +94,11 @@ function App() {
   );
 }
 
-export default App;
+// Zabalíme aplikaci do ThemeProvideru
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}

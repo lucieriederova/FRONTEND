@@ -1,36 +1,409 @@
-/* src/App.css */
+/* src/App.css - FINÁLNÍ DESIGN */
 
-/* Kontejner pro spinner - vycentruje ho na střed obrazovky */
-.spinner-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh; /* Přes celou výšku okna */
-  color: #1988ff;
-  font-family: sans-serif;
-  background-color: #f9fafb; /* Jemně šedé pozadí */
+/* --- 1. PROMĚNNÉ A BARVY --- */
+:root {
+  /* Hlavní barvy značky (Brand Colors) */
+  --brand-blue: #007bff;   /* Základní modrá (Logo, Tlačítka) */
+  --brand-dark: #0d6efd;   /* Tmavší modrá (Pozadí karet, Labelů) */
+  --light-pill: #e7f1ff;   /* Světle modrá (Pozadí jmen, hodnot) */
+
+  /* Obecné barvy (Light Mode) */
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+  --shadow: 0 4px 12px rgba(0,0,0,0.1);
+  --input-bg: #f8f9fa;
+  --hover-bg: #f1f3f5;
+  
+  /* Barvy tlačítek */
+  --btn-danger: #dc3545;
 }
 
-/* Samotné točící kolečko */
-.spinner {
-  border: 4px solid #e5e7eb; /* Světle šedý kruh */
-  border-top: 4px solid #1988ff; /* Modrá část, která se točí */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite; /* Animace točení */
-  margin-bottom: 20px;
+/* Tmavý režim (Dark Mode) */
+body.dark {
+  --brand-blue: #60a5fa;
+  --brand-dark: #1e3a8a;
+  --light-pill: #334155;
+  
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --border-color: #333;
+  --input-bg: #2c2c2c;
+  --hover-bg: #2d2d2d;
+  --shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
-/* Definice animace */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Základní styl aplikace */
 .App {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
 }
+
+/* --- 2. HEADER A LOGO --- */
+.app-header {
+  position: relative; /* Nutné pro absolutní pozicování prvků vpravo */
+  display: flex;
+  justify-content: center; /* Vycentrování loga */
+  align-items: center;
+  padding: 25px 30px;
+  background-color: transparent;
+}
+
+/* LOGO STYLY */
+.app-logo {
+  display: flex;
+  align-items: baseline;
+  cursor: pointer;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 4.5rem; /* Velké logo */
+  line-height: 1;
+  color: var(--brand-blue);
+  
+  /* Hover animace */
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease;
+}
+
+.app-logo:hover {
+  transform: scale(1.05); /* Jemné zvětšení */
+  filter: brightness(1.1); /* Rozsvícení */
+  text-shadow: 0 0 25px rgba(0, 123, 255, 0.3); /* Modrá záře */
+}
+
+.logo-groove {
+  font-weight: 800; /* Extra tučné */
+  letter-spacing: -3px;
+}
+
+.logo-list {
+  font-weight: 300; /* Tenké */
+  margin-left: 2px;
+}
+
+/* OVLÁDACÍ PRVKY (Jazyk, Téma) - Absolutně vpravo */
+.header-controls {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* --- 3. NOVÝ DESIGN JAZYKOVÉHO PŘEPÍNAČE (PILL) --- */
+.lang-dropdown-container {
+  position: relative;
+}
+
+.lang-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  border: 2px solid var(--text-color); /* Výrazný rámeček */
+  border-radius: 50px; /* Pill shape */
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  transition: all 0.2s;
+}
+
+.lang-pill-btn:hover {
+  background-color: var(--hover-bg);
+  transform: scale(1.02);
+}
+
+.globe-icon { font-size: 1.1rem; }
+.arrow-icon { font-size: 0.7rem; transition: transform 0.2s; }
+
+/* Otočení šipky při otevření */
+.lang-pill-btn.open .arrow-icon { transform: rotate(180deg); }
+
+/* Dropdown menu */
+.lang-menu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  z-index: 100;
+}
+
+.lang-option {
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-color);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.lang-option:hover {
+  background-color: var(--light-pill);
+  color: var(--brand-blue);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--text-color);
+}
+
+
+/* --- 4. DETAIL PAGE BADGES (Wireframe Layout) --- */
+
+/* Řádek (Label + Hodnoty) */
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+/* LABEL (vlastník:, members:) - Tmavě modrá pilulka */
+.badge-label {
+  background-color: var(--brand-dark);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 110px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* HODNOTA (Jméno) - Světlá pilulka */
+.badge-value {
+  background-color: var(--light-pill);
+  color: #1f2937; /* Tmavý text pro čitelnost */
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Tlačítko pro odebrání člena (křížek) */
+.badge-remove-btn {
+  background: none; border: none; color: #ef4444; font-weight: bold; font-size: 1.1em;
+  cursor: pointer; padding: 0; line-height: 1; display: flex; align-items: center;
+}
+
+.add-member-btn {
+  background-color: transparent; border: 2px dashed #bbb; color: var(--text-color); cursor: pointer;
+}
+.add-member-btn:hover { background-color: var(--light-pill); border-color: var(--brand-blue); }
+
+
+/* --- 5. KARTY A SEZNAMY (Overview & Items) --- */
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); /* Širší karty */
+  gap: 25px;
+  padding: 20px 0;
+}
+
+/* Obecná karta */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+
+/* --- OVERVIEW KARTY (MODRÉ POZADÍ) --- */
+.shopping-list-card {
+  background-color: var(--brand-dark) !important;
+  color: white !important;
+  border: none;
+  /* Hover animace */
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover efekt - nadzvednutí */
+.shopping-list-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(13, 110, 253, 0.3); /* Modrý stín */
+}
+body.dark .shopping-list-card:hover {
+  box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+}
+
+/* Styl textů v modré kartě */
+.shopping-list-card h3, .shopping-list-card span { color: white !important; }
+
+/* Ikonky na tmavé kartě */
+.shopping-list-card .btn-icon {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px; /* Hranatější jako na obrázku */
+  width: 36px; height: 36px;
+  display: flex; alignItems: center; justifyContent: center;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: background 0.2s;
+  color: white;
+}
+.shopping-list-card .btn-icon:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+
+/* --- POLOŽKY (ITEMS) - MODRÉ ŘÁDKY --- */
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  background-color: var(--brand-dark); /* Modré pozadí */
+  color: white; /* Bílý text */
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: opacity 0.2s;
+}
+
+.item-row span {
+  color: white;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* Checkbox (čtvereček vlevo) */
+.item-checkbox {
+  width: 26px; height: 26px;
+  border: 2px solid white;
+  border-radius: 6px;
+  display: flex; align-items: center; justifyContent: center;
+  cursor: pointer;
+  margin-right: 15px;
+  transition: background-color 0.2s;
+}
+.item-checkbox.checked {
+  background-color: white;
+}
+.item-checkbox.checked::after {
+  content: '✓'; color: var(--brand-dark); font-weight: 900; font-size: 1.1rem;
+}
+
+
+/* --- 6. TLAČÍTKA A INPUTY --- */
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.btn-primary { background-color: var(--brand-blue); color: white; }
+.btn-primary:hover { filter: brightness(1.1); }
+
+.btn-secondary { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background-color: var(--border-color); }
+
+.btn-danger { background-color: var(--btn-danger); color: white; }
+
+input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+input:focus { outline: none; border-color: var(--brand-blue); }
+
+/* Filtr Toggles (All / Active) */
+.filter-toggle {
+  display: flex; gap: 5px;
+  background-color: var(--input-bg);
+  padding: 5px; border-radius: 25px;
+  border: 1px solid var(--border-color);
+}
+.filter-btn {
+  background: none; border: none;
+  padding: 6px 18px; border-radius: 20px;
+  cursor: pointer; color: #888;
+  font-weight: 700; transition: all 0.2s;
+}
+.filter-btn.active {
+  background-color: var(--brand-blue); color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- 7. RESPONSIVITA --- */
+@media (max-width: 850px) {
+  .app-header {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .header-controls {
+    position: static; /* Zrušíme absolutní pozici */
+    transform: none;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .app-logo { font-size: 3.5rem; }
+
+  .grid-container { grid-template-columns: 1fr; }
+  
+  .detail-row {
+    flex-direction: column; align-items: flex-start; gap: 8px;
+  }
+  .badge-label { min-width: auto; width: 100%; }
+}
+
+/* Spinner */
+.spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: var(--brand-blue); }
+.spinner { border: 4px solid #eee; border-top: 4px solid var(--brand-blue); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
+@keyframes spin { 100% { transform: rotate(360deg); } }

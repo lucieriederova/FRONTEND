@@ -4,33 +4,43 @@
 let mockData = [
     {
       id: "list01",
-      name: "Nákup na víkend",
-      owner: { id: "u1", name: "Lucie" },
+      name: "nákup domů",
+      owner: { id: "u1", name: "lucie" },
       isArchived: false,
       members: [
-        { id: "u2", name: "Pepa" },
-        { id: "u3", name: "Jana" }
+        { id: "u2", name: "mike" },
+        { id: "u3", name: "athena" }
       ],
       items: [
-        { id: "item1", name: "Rohlíky", isFinished: false },
-        { id: "item2", name: "Máslo", isFinished: true },
+        { id: "item1", name: "rohlíky", isFinished: false },
+        { id: "item2", name: "máslo", isFinished: true },
+        { id: "item3", name: "sýr", isFinished: false }
       ] 
     },
     {
       id: "list02",
-      name: "Vánoční dárky",
-      owner: { id: "u1", name: "Lucie" },
+      name: "vánoční nákup",
+      owner: { id: "u1", name: "lucie" },
       isArchived: false,
       members: [], 
-      items: [] 
+      items: [
+        { id: "item1", name: "svíčky", isFinished: false },
+        { id: "item2", name: "cukroví", isFinished: false },
+        { id: "item3", name: "stromeček", isFinished: true },
+        { id: "item4", name: "svíčky", isFinished: true }
+      ] 
     },
     {
       id: "list03",
-      name: "Starý seznam 2023",
-      owner: { id: "u1", name: "Lucie" },
+      name: "narozeniny",
+      owner: { id: "u1", name: "lucie" },
       isArchived: true, 
       members: [], 
-      items: [{ id: "i1", name: "Mléko", isFinished: true }] 
+      items: [
+        { id: "i1", name: "balónky", isFinished: true },
+        { id: "i2", name: "konfety", isFinished: true }
+      ] 
+
     },
   ];
   
